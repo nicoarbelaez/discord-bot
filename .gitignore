@@ -1,0 +1,6 @@
+# Directorios
+/node_modules
+
+# Archivos
+.env
+package-lock.json
