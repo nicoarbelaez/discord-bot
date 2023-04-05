@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require("discord.js");
 
 module.exports = {
   CMD: new SlashCommandBuilder()
@@ -22,7 +22,8 @@ module.exports = {
           value: "handlers",
         }
       )
-    ),
+    )
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   async execute(client, interaction, prefix) {
     let args = interaction.options.getString("modulo");
@@ -65,21 +66,33 @@ module.exports = {
           await client.loadHandlers();
         }
         default:
-          await client.loadHandlers();
           await client.loadEvents();
+          await client.loadHandlers();
           await client.loadSlashCommands();
           await client.loadCommands();
           break;
       }
-
+      
       interaction.reply({
         embeds: [
           new EmbedBuilder()
-            .addFields({
-              name: `✅ | **${option} recargados**`,
-              value: `> **${option} recargados correctamente**`,
+            .setColor(process.env.COLOR)
+            .setThumbnail(interaction.member.guild.iconURL())
+            .setAuthor({
+              name: `Bot ${client.user.username}`,
+              iconURL: client.user.avatarURL(),
             })
-            .setColor(process.env.COLOR),
+            .setTitle("Recargar módulos")
+            .setDescription(`\`/${interaction.commandName}\` Recarga los archivos del bot`)
+            .addFields({
+              name: "📝 | **Información**",
+              value: `**Módulo:** ${option}`,
+            })
+            .setFooter({
+              text: `Ejecutado por ${interaction.user.username}`,
+              iconURL: interaction.user.avatarURL(),
+            })
+            .setTimestamp(),
         ],
         ephemeral: true,
       });

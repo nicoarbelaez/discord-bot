@@ -1,15 +1,13 @@
-const { SlashCommandBuilder, Collection } = require("discord.js");
+const { SlashCommandBuilder, Collection, PermissionFlagsBits } = require("discord.js");
 
 module.exports = {
   CMD: new SlashCommandBuilder()
-    .setName("apodo")
-    .setDescription("Actuliza el prefijo")
+    .setName("nickname")
+    .setDescription("Actuliza apodo y prefijo del miembro (Usar sin argumentos para restablecer)")
     .addUserOption((option) =>
       option.setName("miembro").setDescription("Miembro a actualizar el prefijo")
     )
-    .addBooleanOption((option) =>
-      option.setName("todos-los-mimbros").setDescription("Actulizar el apodo de todos los miembros")
-    ),
+    .addStringOption((option) => option.setName("apodo").setDescription("Apodo a actualizar")),
   async execute(client, interaction, prefix) {
     try {
       /**
@@ -22,9 +20,8 @@ module.exports = {
         // Obtenemos los roles del miembro
         const roles = await member.roles.cache;
         const arrayRoles = new Collection();
-        // Creamos un array con los roles y su posición
+
         roles.forEach((r) => {
-          // Si el rol no es 0, se agrega al array
           if (r.color !== 0) arrayRoles.set(r.rawPosition, r.name);
         });
         // Ordenamos el array de mayor a menor
@@ -33,7 +30,6 @@ module.exports = {
 
         return highestRole;
       }
-
       /**
        * Convierte el nombre del rol en un prefijo
        * @param {String} name Nombre del rol
@@ -45,67 +41,75 @@ module.exports = {
         let namePrefix = "";
         namePrefix = name.replace(/[a-z ]/g, "");
 
-        // Si el nombre es menor a 9 caracteres, se retorna el nombre
         if (name.length < 9) {
           namePrefix = name;
         }
-        // Si al final el nombre existe en el objeto, se retorna el valor
+
         if (prefixes.hasOwnProperty(name)) {
           namePrefix = prefixes[name];
         }
 
         return "[" + namePrefix + "]";
       }
-
       /**
        * Obtiene el nombre del miembro y le agrega el prefijo
        * @param {*} member objeto del miembro
        * @returns {String} Nuevo apodo del miembro
        */
       async function getNickname(member) {
-        const namePrefix = convertNamePrefix(await getHighestRole(member));
-        const nameUser = member.user.username;
-        return `${namePrefix} ${nameUser}`;
+        const NICKNAME = interaction.options.getString("apodo")?.substring(0, 32);
+        
+        const prefix = convertNamePrefix(await getHighestRole(member));
+        const nickname = NICKNAME ? NICKNAME : member.user.username;
+        return `${prefix} ${nickname}`;
+      }
+      /**
+       * Setea el nombre del miembro
+       * @param {*} member objeto del miembro
+       */
+      async function setNickname(member) {
+        const OWNER = process.env.OWNER_IDS.split(", ");
+        if (!OWNER.includes(member.user.id)) {
+          member.setNickname(await getNickname(member));
+        }
       }
 
       const prefixes = {
+        Moderador: "Mod",
         Developer: "Dev",
         "Nitro Booster": "Nitro",
       };
-      const OWNER = process.env.OWNER_IDS.split(", ");
 
-      // TODOS LOS MIEMBROS ====================================== ("todos-los-miembros")(true)
-      if (interaction.options.getBoolean("todos-los-mimbros")) {
-        let countMemeberUpdatePrefix = 0;
-        const arrayMembers = [];
-        const members = await interaction.guild.members.fetch();
-        members.forEach(async (member) => {
-          const isBot = member.user.bot;
-          const isOwner = OWNER.includes(member.user.id);
-          if (!isOwner) {
-            member.setNickname(await getNickname(member));
-            arrayMembers.push(member.user.username);
-            countMemeberUpdatePrefix++;
-          }
-        });
-        console.log(arrayMembers);
+      const MEMBER = interaction.member; // Miembro que ejecuta el comando
+      const TARGET_MEMBER = interaction.options.getMember("miembro"); // Miembro al que se le va a cambiar el nombre
+
+      // Verifica si el miembro tiene permiso para cambiar el nombre de otros miembros
+      if (TARGET_MEMBER) {
+        if (!MEMBER.permissions.has(PermissionFlagsBits.ManageNicknames) || TARGET_MEMBER.user.bot)
+          return interaction.reply({
+            content: `❌ | **¡Lo siento mucho, pero no tienes permiso para cambiar el nombre de otros miembros!** 😢\nEl apodo de ${TARGET_MEMBER.user} se ha mantenido igual.`,
+            ephemeral: true,
+          });
+
+        setNickname(TARGET_MEMBER);
+
         return interaction.reply({
-          content: `✅ | **¡Se han actulizado ${countMemeberUpdatePrefix} apodos de los miembros!**\n`,
-          ephemeral: true,
+          content: `✅ | **¡Qué bien!** El nombre de ${TARGET_MEMBER.user} ha sido actualizado. 😊`,
+          ephemeral: false,
         });
-      }
+      } // Fin de cambio de nombre de otro miembro
 
-      if (!OWNER.includes(interaction.member.user.id))
-        interaction.member.setNickname(await getNickname(interaction.member));
+      // Cambia el nombre del miembro que ejecuta el comando
+      setNickname(MEMBER);
 
       return interaction.reply({
-        content: `✅ | **¡Nombre actulizado ${interaction.user}!**\n`,
-        ephemeral: true,
+        content: `✅ | **¡Felicidades!** Tu nombre ha sido actualizado. ${MEMBER.user}😍\n`,
+        ephemeral: false,
       });
     } catch (e) {
       console.log(e);
       return interaction.reply({
-        content: `❌ | **¡No se pudo cambiar el nombre!**\n`,
+        content: `❌ | **¡Qué pena!** No se pudo cambiar el nombre. 😭\n`,
         ephemeral: true,
       });
     }

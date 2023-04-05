@@ -58,8 +58,8 @@ module.exports = class extends Client {
   }
 
   async start() {
-    await this.loadHandlers();
     await this.loadEvents();
+    await this.loadHandlers();
     await this.loadCommands();
     await this.loadSlashCommands();
 

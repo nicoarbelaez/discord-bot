@@ -4,7 +4,7 @@ module.exports = {
   async execute(client, message, args, prefix) {
     
     return message.reply({
-      content: `🏓 | ${message.author} **¡Mi ping es de \`${client.ws.ping}ms\`!**`,
+      content: `🏓 | **¡Qué maravilla!** Mi ping es de **${client.ws.ping}ms!** ¡Estoy súper rápido y listo para la acción! 😎`,
     });
   },
 };
