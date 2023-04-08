@@ -3,3 +3,4 @@
 
 # Archivos
 package-lock.json
+.env

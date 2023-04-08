@@ -5,7 +5,7 @@ module.exports = {
     .setName("userinfo")
     .setDescription("Ver la información de un usuario")
     .addUserOption((option) =>
-      option.setName("objetivo").setDescription("¿De quién quieres ver la información?")
+      option.setName("target").setDescription("¿De quién quieres ver la información?")
     ),
 
   async execute(client, interaction, prefix) {
@@ -18,9 +18,30 @@ module.exports = {
 
         return prefix;
       }
-      const targetMember = interaction.options.getMember("objetivo");
+      const targetMember = interaction.options.getMember("target");
       const infoMember = targetMember || interaction.member;
+      // Roles del usuario
+      const roles = infoMember.roles.cache;
+      const rolesID = [];
 
+      roles.sort((a, b) => {
+        return b.rawPosition - a.rawPosition;
+      });
+
+      roles.forEach((role) => {
+        if (role.color !== 0) {
+          rolesID.push(`<@&${role.id}>`); // Convierto el ID del rol en mencion
+        }
+      });
+      // Estado del usuario
+      const status = {
+        online: "🟢 En línea",
+        idle: "🟡 Ausente",
+        dnd: "🔴 No molestar",
+        offline: "⚫️ Desconectado",
+      };
+
+      // Crear un embed
       const embed = new EmbedBuilder()
         .setColor(process.env.COLOR)
         .setThumbnail(
@@ -30,6 +51,9 @@ module.exports = {
         )
         .setAuthor({
           name: `${infoMember.user.username}#${infoMember.user.discriminator}`,
+          iconURL: infoMember.user.avatarURL({
+            dynamic: true,
+          }),
         })
         .setTitle(`Información de ${infoMember.user.username}`)
         .setURL(process.env.URL_INVITE)
@@ -45,36 +69,34 @@ module.exports = {
             inline: true,
           },
           {
-            name: `ID`,
-            value: `${infoMember.user.id}`,
+            name: `🔒 ID`,
+            value: `\`${infoMember.user.id}\``,
           },
           {
-            name: `Prefijo`,
-            value: `${getPrefixNickname(infoMember.nickname)}`,
+            name: `📌 Prefijo`,
+            value: `\`${getPrefixNickname(infoMember.nickname)}\``,
             inline: true,
           },
           {
-            name: `Nickname`,
-            value: `${infoMember.nickname || infoMember.user.username}`,
+            name: `🤭 Nickname`,
+            value: `\`${infoMember.nickname || infoMember.user.username}\``,
             inline: true,
           },
           {
-            name: `Bot`,
-            value: `${infoMember.user.bot ? "Sí" : "No"}`,
+            name: `🤖 Bot`,
+            value: `\`${infoMember.user.bot ? "Sí" : "No"}\``,
             inline: true,
           },
           {
-            name: `Roles`,
-            value: `${infoMember.roles.cache.size - 1}`,
-            inline: true,
+            name: `🌈 Roles`,
+            value: rolesID.join(", ") || "No tiene",
+            inline: false,
           },
           {
-            name: `Estado`,
-            value: `${
-              infoMember.presence
-                ? "🟢 " + infoMember.presence.status || "🔴 Offline"
-                : "🔴 Offline"
-            }`,
+            name: `📢 Estado`,
+            value: `\`${
+              infoMember.presence ? status[infoMember.presence.status] : status["offline"]
+            }\``,
             inline: true,
           }
         )
@@ -92,7 +114,7 @@ module.exports = {
 
       interaction.reply({
         embeds: [embed],
-        ephemeral: false,
+        ephemeral: false, // Para mostrar el mensaje solo al usuario que ejecutó el comando
       });
     } catch (e) {
       interaction.reply({

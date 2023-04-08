@@ -28,6 +28,7 @@ module.exports = {
   async execute(client, interaction, prefix) {
     let args = interaction.options.getString("modulo");
     let option = "Commands, Events, SlashCommands y Handlers";
+    client.tableClient = [];
 
     try {
       switch (args?.toLowerCase()) {
@@ -72,28 +73,35 @@ module.exports = {
           await client.loadCommands();
           break;
       }
-      
+
+      const embed = new EmbedBuilder()
+        .setColor(process.env.COLOR)
+        .setThumbnail(interaction.member.guild.iconURL())
+        .setAuthor({
+          name: `Bot ${client.user.username}`,
+          iconURL: client.user.avatarURL(),
+        })
+        .setTitle("Recargar módulos")
+        .setDescription(`Se han recargado los módulos: **${option}**`)
+        .setFooter({
+          text: `Ejecutado por ${interaction.user.username}`,
+          iconURL: interaction.user.avatarURL(),
+        })
+        .setTimestamp();
+
+      // Agregar los datos a la tabla
+      const types = client.tableClient.map((colums) => `${colums.type}`).join("\n");
+      const names = client.tableClient.map((colums) => `\`${colums.name}\``).join("\n");
+      const assets = client.tableClient.map((colums) => `\`${colums.asset}\``).join("\n");
+      embed.addFields(
+        { name: "Type", value: types, inline: true },
+        { name: "Name", value: names, inline: true },
+        { name: "Asset", value: assets, inline: true }
+      );
+
+      console.table(client.tableClient);
       interaction.reply({
-        embeds: [
-          new EmbedBuilder()
-            .setColor(process.env.COLOR)
-            .setThumbnail(interaction.member.guild.iconURL())
-            .setAuthor({
-              name: `Bot ${client.user.username}`,
-              iconURL: client.user.avatarURL(),
-            })
-            .setTitle("Recargar módulos")
-            .setDescription(`\`/${interaction.commandName}\` Recarga los archivos del bot`)
-            .addFields({
-              name: "📝 | **Información**",
-              value: `**Módulo:** ${option}`,
-            })
-            .setFooter({
-              text: `Ejecutado por ${interaction.user.username}`,
-              iconURL: interaction.user.avatarURL(),
-            })
-            .setTimestamp(),
-        ],
+        embeds: [embed],
         ephemeral: true,
       });
     } catch (e) {

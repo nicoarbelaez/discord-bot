@@ -53,7 +53,7 @@ module.exports = class extends Client {
     this.slashArray = [];
 
     this.utils = new BotUtils(this);
-
+    this.tableClient = [];
     this.start();
   }
 
@@ -67,7 +67,7 @@ module.exports = class extends Client {
   }
 
   async loadCommands() {
-    console.log(`(${process.env.PREFIX}) Loading commands...`.bgYellow);
+    console.log(`(${process.env.PREFIX}) Loading commands...`.yellow);
     await this.commands.clear();
 
     const PATH_COMMANDS = await this.utils.loadFile("/src/commands");
@@ -75,22 +75,29 @@ module.exports = class extends Client {
     if (PATH_COMMANDS.length) {
       // Se recorre el array de comandos en los archivos
       PATH_COMMANDS.forEach((pathFile) => {
+        const NAME_COMMAND = pathFile.split("\\").pop().split("/").pop().split(".")[0];
+        let asset = "❌";
         try {
           const COMMAND = require(pathFile);
           /** Se crea una variable que almacena el nombre del comando usando el nombre del archivo
            *
            * @example  "src/commands/ping.js" => "ping"
            */
-          const NAME_COMMAND = pathFile.split("\\").pop().split("/").pop().split(".")[0];
           COMMAND.NAME = NAME_COMMAND;
 
           if (NAME_COMMAND) {
             this.commands.set(NAME_COMMAND, COMMAND);
           }
+          asset = "✅";
         } catch (e) {
           console.log(`Error loading command ${pathFile}:`.bgRed);
           console.log(e);
         }
+        this.tableClient.push({
+          type: "Commands",
+          name: `${process.env.PREFIX}${NAME_COMMAND}`,
+          asset: asset,
+        });
       });
     }
 
@@ -98,7 +105,7 @@ module.exports = class extends Client {
   }
 
   async loadSlashCommands() {
-    console.log(`(/) Loading slash commands...`.bgYellow);
+    console.log(`(/) Loading slash commands...`.yellow);
     await this.slashCommands.clear();
     this.slashArray = [];
 
@@ -106,14 +113,13 @@ module.exports = class extends Client {
 
     if (PATH_SLASH_COMMANDS.length) {
       PATH_SLASH_COMMANDS.forEach((pathFile) => {
+        let NAME_SLASH_COMMANDS = pathFile.split("\\").pop().split("/").pop().split(".")[0];
+        let asset = "❌";
         try {
           const SLASH_COMMANDS = require(pathFile);
 
-          let NAME_SLASH_COMMANDS = pathFile.split("\\").pop().split("/").pop().split(".")[0];
           // Se asigna el resultado del operador ternario a la propiedad CMD.name
-          SLASH_COMMANDS.CMD.name = SLASH_COMMANDS.CMD.name
-            ? SLASH_COMMANDS.CMD.name
-            : NAME_SLASH_COMMANDS;
+          SLASH_COMMANDS.CMD.name = SLASH_COMMANDS.CMD.name || NAME_SLASH_COMMANDS;
           // Se reasigna el valor de NAME_SLASH_COMMANDS
           NAME_SLASH_COMMANDS = SLASH_COMMANDS.CMD.name;
 
@@ -122,10 +128,16 @@ module.exports = class extends Client {
           }
 
           this.slashArray.push(SLASH_COMMANDS.CMD.toJSON());
+          asset = "✅";
         } catch (e) {
           console.log(`Error loading slash command ${pathFile}:`.bgRed);
           console.log(e);
         }
+        this.tableClient.push({
+          type: "SlashCommands",
+          name: `/${NAME_SLASH_COMMANDS}`,
+          asset: asset,
+        });
       });
     }
 
@@ -138,18 +150,22 @@ module.exports = class extends Client {
   }
 
   async loadHandlers() {
-    console.log(`(-) Loading handlers...`.bgYellow);
+    console.log(`(-) Loading handlers...`.yellow);
 
     const PATH_HANDLERS = await this.utils.loadFile("/src/handlers");
 
     if (PATH_HANDLERS.length) {
       PATH_HANDLERS.forEach((pathFile) => {
+        const NAME_HANDLER = pathFile.split("\\").pop().split("/").pop().split(".")[0];
+        let asset = "❌";
         try {
           require(pathFile)(this);
+          asset = "✅";
         } catch (e) {
           console.log(`Error loading handlers ${pathFile}:`.bgRed);
           console.log(e);
         }
+        this.tableClient.push({ type: "Handler", name: NAME_HANDLER, asset: asset });
       });
     }
 
@@ -157,25 +173,28 @@ module.exports = class extends Client {
   }
 
   async loadEvents() {
-    console.log(`(+) Loading events...`.bgYellow);
+    console.log(`(+) Loading events...`.yellow);
 
     const PATH_EVENTS = await this.utils.loadFile("src/events");
     this.removeAllListeners();
 
     if (PATH_EVENTS.length) {
       PATH_EVENTS.forEach((pathFile) => {
+        const NAME_EVENT = pathFile.split("\\").pop().split("/").pop().split(".")[0];
+        let asset = "❌";
         try {
           const EVENT = require(pathFile);
-          const NAME_EVENT = pathFile.split("\\").pop().split("/").pop().split(".")[0];
           /**
            * Un evento es el "ready"
            * .bind devuelve una función que cuando se ejecute, tendrá el valor de this establecido en el primer argumento que se le pase a bind.
            *  */
           this.on(NAME_EVENT, EVENT.bind(null, this));
+          asset = "✅";
         } catch (e) {
           console.log(`Error loading events ${pathFile}:`.bgRed);
           console.log(e);
         }
+        this.tableClient.push({ type: "Events", name: NAME_EVENT, asset: asset });
       });
     }
 
