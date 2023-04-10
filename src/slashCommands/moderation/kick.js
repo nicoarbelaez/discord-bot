@@ -2,19 +2,19 @@ const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require("disc
 
 module.exports = {
   CMD: new SlashCommandBuilder()
-    .setDescription("Banear a un usuario")
+    .setDescription("Expulsar a un usuario")
     .addUserOption((option) =>
-      option.setName("target").setDescription("El usuario que quieres banear").setRequired(true)
+      option.setName("target").setDescription("El usuario que quieres expulsar").setRequired(true)
     )
     .addStringOption((option) => option.setName("razon").setDescription("Razón").setRequired(true))
     .setDMPermission(false)
-    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
+    .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
   async execute(client, interaction, prefix) {
     try {
       const TARGET_MEMBER = interaction.options.getMember("target");
       const reason = interaction.options.getString("razon");
       const embed = new EmbedBuilder()
-        .setColor(process.env.COLOR_BAN)
+        .setColor(process.env.COLOR_KICK)
         .setTimestamp()
         .setThumbnail(TARGET_MEMBER.user.displayAvatarURL({ dynamic: true, size: 512 }))
         .setFooter({
@@ -24,42 +24,42 @@ module.exports = {
           }),
         });
 
-      let menssageContent = `¡Intentaste banear ha ${TARGET_MEMBER}`;
-      let errorBan = false;
+      let menssageContent = `¡Intentaste expulsar ha ${TARGET_MEMBER}`;
+      let errorKick = false;
 
       if (TARGET_MEMBER.id === interaction.user.id) {
-        embed.setTitle("😱 ¡No puedes banearte a ti mismo!");
+        embed.setTitle("😱 ¡No puedes expulsarte a ti mismo!");
         embed.setDescription("¿Estás loco o qué?... 😂");
-        errorBan = true;
+        errorKick = true;
       }
 
       if (TARGET_MEMBER.id === client.user.id) {
-        embed.setTitle("😡 ¡No puedo banearme a mi mismo!");
+        embed.setTitle("😡 ¡No puedo expulsarme a mi mismo!");
         embed.setDescription("¿Qué te crees que soy?... 😒");
-        errorBan = true;
+        errorKick = true;
       }
 
       if (
         TARGET_MEMBER.roles.highest.position >= interaction.member.roles.highest.position &&
-        !errorBan
+        !errorKick
       ) {
-        embed.setTitle("😮 ¡No puedes banear a un usuario con un rol igual o superior al tuyo!");
+        embed.setTitle("😮 ¡No puedes expulsar a un usuario con un rol igual o superior al tuyo!");
         embed.setDescription("¿Te crees más que los demás?... 😤");
-        errorBan = true;
+        errorKick = true;
       }
 
-      if (!TARGET_MEMBER.bannable && !errorBan) {
-        embed.setTitle("😓 ¡No puedo banear a este usuario!");
+      if (!TARGET_MEMBER.bannable && !errorKick) {
+        embed.setTitle("😓 ¡No puedo expulsar a este usuario!");
         embed.setDescription("¿Por qué me pones en esta situación?... 😭");
-        errorBan = true;
+        errorKick = true;
       }
 
-      if (!embed.data.title && !errorBan) {
+      if (!embed.data.title && !errorKick) {
         const channelLogsModeration = interaction.guild.channels.cache.get(
           process.env.CHANNEL_LOG_MODERATION
         );
         embed
-          .setTitle(`🚫 [BAN] ${TARGET_MEMBER.user.tag}`)
+          .setTitle(`⏏️ [KICK] ${TARGET_MEMBER.user.tag}`)
           .addFields(
             {
               name: "👤 Usuario",
@@ -78,10 +78,10 @@ module.exports = {
             }
           );
 
-        await TARGET_MEMBER.ban({ reason: reason });
+        await TARGET_MEMBER.kick({ reason: reason });
 
         channelLogsModeration.send({
-          content: `${interaction.user} has baneado a ${TARGET_MEMBER}`,
+          content: `${interaction.user} has expulsado a ${TARGET_MEMBER}`,
           embeds: [embed],
         });
         menssageContent = "";

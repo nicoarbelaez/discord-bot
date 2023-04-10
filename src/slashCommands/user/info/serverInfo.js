@@ -3,7 +3,8 @@ const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require("disc
 module.exports = {
   CMD: new SlashCommandBuilder()
     .setName("serverinfo")
-    .setDescription("Ver la información del servidor"),
+    .setDescription("Ver la información del servidor")
+    .setDMPermission(false),
 
   async execute(client, interaction, prefix) {
     try {
@@ -17,18 +18,18 @@ module.exports = {
           })
         )
         .setAuthor({
-          name: `${server.name  }`,
+          name: `${server.name}`,
           iconURL: server.iconURL({
             dynamic: true,
           }),
         })
         .setTitle(`Información de ${server.name}`)
         .setURL(process.env.URL_INVITE)
-        .setDescription(`${server.description} \n **ID:** \`${server.id}\``)
+        .setDescription(`${server.description} \n\n **ID:** \`${server.id}\``)
         .addFields(
           {
             name: "🎂 Creación del servidor",
-            value: `<t:${process.env.CREATION_SERVER}>`,
+            value: `<t:${process.env.CREATION_SERVER}:D>`,
             inline: false,
           },
           {

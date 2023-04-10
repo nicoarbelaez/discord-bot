@@ -6,7 +6,8 @@ module.exports = {
     .setDescription("Ver la información de un usuario")
     .addUserOption((option) =>
       option.setName("target").setDescription("¿De quién quieres ver la información?")
-    ),
+    )
+    .setDMPermission(false),
 
   async execute(client, interaction, prefix) {
     try {
@@ -50,7 +51,7 @@ module.exports = {
           })
         )
         .setAuthor({
-          name: `${infoMember.user.username}#${infoMember.user.discriminator}`,
+          name: `${infoMember.user.tag}`,
           iconURL: infoMember.user.avatarURL({
             dynamic: true,
           }),

@@ -23,6 +23,7 @@ module.exports = {
         }
       )
     )
+    .setDMPermission(false)
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   async execute(client, interaction, prefix) {

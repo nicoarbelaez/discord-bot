@@ -7,6 +7,7 @@ module.exports = {
     .addUserOption((option) =>
       option.setName("miembro").setDescription("Miembro a actualizar el prefijo")
     )
+    .setDMPermission(false)
     .addStringOption((option) => option.setName("apodo").setDescription("Apodo a actualizar")),
   async execute(client, interaction, prefix) {
     try {
@@ -58,7 +59,7 @@ module.exports = {
        */
       async function getNickname(member) {
         const NICKNAME = interaction.options.getString("apodo")?.substring(0, 32);
-        
+
         const prefix = convertNamePrefix(await getHighestRole(member));
         const nickname = NICKNAME ? NICKNAME : member.user.username;
         return `${prefix} ${nickname}`;
