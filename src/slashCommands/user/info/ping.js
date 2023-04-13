@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require("discord.js");
-const { ping } = require("../../../config/messageBlocky.json");
+const { ping } = require(`${process.cwd()}/config/messageBlocky.json`);
 
 module.exports = {
   CMD: new SlashCommandBuilder().setDescription("Muestra el ping del bot").setDMPermission(false),

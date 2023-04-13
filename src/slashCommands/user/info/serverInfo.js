@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require("discord.js");
+const { server } = require(`${process.cwd()}/config/config.json`);
 
 module.exports = {
   CMD: new SlashCommandBuilder()
@@ -24,12 +25,12 @@ module.exports = {
           }),
         })
         .setTitle(`Información de ${server.name}`)
-        .setURL(process.env.URL_INVITE)
+        .setURL(server.url)
         .setDescription(`${server.description} \n\n **ID:** \`${server.id}\``)
         .addFields(
           {
             name: "🎂 Creación del servidor",
-            value: `<t:${process.env.CREATION_SERVER}:D>`,
+            value: `<t:${parseInt(server.createdTimestamp / 1000)}:D>`,
             inline: false,
           },
           {
@@ -81,7 +82,7 @@ module.exports = {
 
       interaction.reply({
         embeds: [embed],
-        ephemeral: false, // Para mostrar el mensaje solo al usuario que ejecutó el comando
+        ephemeral: true, // Para mostrar el mensaje solo al usuario que ejecutó el comando
       });
     } catch (e) {
       interaction.reply({

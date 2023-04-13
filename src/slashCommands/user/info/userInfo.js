@@ -1,4 +1,5 @@
-const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const { server } = require(`${process.cwd()}/config/config.json`);
 
 module.exports = {
   CMD: new SlashCommandBuilder()
@@ -57,7 +58,7 @@ module.exports = {
           }),
         })
         .setTitle(`Información de ${infoMember.user.username}`)
-        .setURL(process.env.URL_INVITE)
+        .setURL(server.url)
         .addFields(
           {
             name: `📅 Miembro desde`,
@@ -120,7 +121,7 @@ module.exports = {
     } catch (e) {
       interaction.reply({
         content: `❌ | **¡Ha ocurrido un error al ejecutar este comando!**`,
-        ephemeral: true,
+        ephemeral: false,
       });
       console.log(e);
     }

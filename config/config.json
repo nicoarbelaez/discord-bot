@@ -1,0 +1,18 @@
+{
+  "server": {
+    "url": "https://discord.gg/FmaRPpcx7f",
+    "channel": {
+      "log": "1094724743002869810",
+      "logModeration": "1094724743002869810",
+      "suggestion": "1093562140188753991"
+    }
+  },
+  "colors": {
+    "moderation": {
+      "ban": "#dc2e45",
+      "kick": "#3b89c2",
+      "timeout": "#8999a7",
+      "warn": "#E5D020"
+    }
+  }
+}

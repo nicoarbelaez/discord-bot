@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require("discord.js");
+const { colors, server } = require(`${process.cwd()}/config/config.json`);
 
 module.exports = {
   CMD: new SlashCommandBuilder()
@@ -14,7 +15,7 @@ module.exports = {
       const TARGET_MEMBER = interaction.options.getMember("target");
       const reason = interaction.options.getString("razon");
       const embed = new EmbedBuilder()
-        .setColor(process.env.COLOR_BAN)
+        .setColor(colors.moderation.ban)
         .setTimestamp()
         .setThumbnail(TARGET_MEMBER.user.displayAvatarURL({ dynamic: true, size: 512 }))
         .setFooter({
@@ -56,27 +57,25 @@ module.exports = {
 
       if (!embed.data.title && !errorBan) {
         const channelLogsModeration = interaction.guild.channels.cache.get(
-          process.env.CHANNEL_LOG_MODERATION
+          server.channel.logModeration
         );
-        embed
-          .setTitle(`🚫 [BAN] ${TARGET_MEMBER.user.tag}`)
-          .addFields(
-            {
-              name: "👤 Usuario",
-              value: `${TARGET_MEMBER}`,
-              inline: true,
-            },
-            {
-              name: "👮 Moderador",
-              value: `${interaction.user}`,
-              inline: true,
-            },
-            {
-              name: "📝 Razón",
-              value: reason,
-              inline: false,
-            }
-          );
+        embed.setTitle(`🚫 [BAN] ${TARGET_MEMBER.user.tag}`).addFields(
+          {
+            name: "👤 Usuario",
+            value: `${TARGET_MEMBER}`,
+            inline: true,
+          },
+          {
+            name: "👮 Moderador",
+            value: `${interaction.user}`,
+            inline: true,
+          },
+          {
+            name: "📝 Razón",
+            value: reason,
+            inline: false,
+          }
+        );
 
         await TARGET_MEMBER.ban({ reason: reason });
 

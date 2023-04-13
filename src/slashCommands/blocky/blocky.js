@@ -2,24 +2,24 @@ const { SlashCommandBuilder, PermissionFlagsBits, ChannelType } = require("disco
 
 module.exports = {
   CMD: new SlashCommandBuilder()
-    .setDescription("Envía un mensaje de blocky a un canal")
+    .setDescription(
+      'Envía un mensaje de blocky a un canal. Usa (emoji) en el segundo ":" para enviar emojis'
+    )
     .addChannelOption((option) =>
       option
         .setName("channel")
         .setDescription("Canal donde se enviará el mensaje")
-        .addChannelTypes(ChannelType.GuildText | ChannelType.GuildAnnouncement)
+        .addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement)
         .setRequired(true)
     )
     .addStringOption((option) =>
       option.setName("message-id").setDescription("ID del mensaje que se enviará").setRequired(true)
     )
-    .addChannelOption(
-      (option) =>
-        option
-          .setName("channel-location")
-          .setDescription("Canal donde se encuentra el mensaje")
-          .addChannelTypes(ChannelType.GuildText)
-      // .setRequired(true)
+    .addChannelOption((option) =>
+      option
+        .setName("channel-location")
+        .setDescription("Canal donde se encuentra el mensaje")
+        .addChannelTypes(ChannelType.GuildText)
     )
     .setDMPermission(false)
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
@@ -40,12 +40,14 @@ module.exports = {
         });
       }
 
+      const menssageContent = message.content.replaceAll("\\", "");
+
       await channel.send({
-        content: message.content,
+        content: menssageContent,
         files: message.attachments.map((attachment) => attachment.url),
       });
 
-      return interaction.reply({
+      await interaction.reply({
         content: `Mensaje enviado al canal ${channel}`,
         ephemeral: true,
       });

@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require("discord.js");
+const { colors, server } = require(`${process.cwd()}/config/config.json`);
 
 module.exports = {
   CMD: new SlashCommandBuilder()
@@ -43,7 +44,7 @@ module.exports = {
       const reason = interaction.options.getString("razon");
       const time = interaction.options.getInteger("tiempo");
       const embed = new EmbedBuilder()
-        .setColor(process.env.COLOR_TIMEOUT)
+        .setColor(colors.moderation.timeout)
         .setTimestamp()
         .setThumbnail(TARGET_MEMBER.user.displayAvatarURL({ dynamic: true, size: 512 }))
         .setFooter({
@@ -54,40 +55,40 @@ module.exports = {
         });
 
       let menssageContent = `¡Intentaste aislar temporalmente ha ${TARGET_MEMBER}`;
-      let errorBan = false;
+      let errorTimeOut = false;
 
       if (TARGET_MEMBER.id === interaction.user.id) {
-        embed.setTitle("😱 ¡No puedes aislarte temporalmente a ti mismo!");
-        embed.setDescription("¿Estás loco o qué?... 😂");
-        errorBan = true;
+        embed.setTitle("😳 ¡No puedes aislarte temporalmente a ti mismo!");
+        embed.setDescription("¿Qué sentido tiene eso?.. 🤔");
+        errorTimeOut = true;
       }
 
       if (TARGET_MEMBER.id === client.user.id) {
-        embed.setTitle("😡 ¡No puedo aislarme temporalmente a mi mismo!");
-        embed.setDescription("¿Qué te crees que soy?... 😒");
-        errorBan = true;
+        embed.setTitle("😠 ¡No puedes aislarme temporalmente a mí mismo!");
+        embed.setDescription("¿Qué te has creído?... 😑");
+        errorTimeOut = true;
       }
 
       if (
         TARGET_MEMBER.roles.highest.position >= interaction.member.roles.highest.position &&
-        !errorBan
+        !errorTimeOut
       ) {
         embed.setTitle(
-          "😮 ¡No puedes aislar temporalmente a un usuario con un rol igual o superior al tuyo!"
+          "😲 ¡No puedes aislar temporalmente a un usuario con un rol igual o superior al tuyo!"
         );
-        embed.setDescription("¿Te crees más que los demás?... 😤");
-        errorBan = true;
+        embed.setDescription("¿No respetas la jerarquía?... 😡");
+        errorTimeOut = true;
       }
 
-      if (!TARGET_MEMBER.bannable && !errorBan) {
-        embed.setTitle("😓 ¡No puedo aislar temporalmente a este usuario!");
-        embed.setDescription("¿Por qué me pones en esta situación?... 😭");
-        errorBan = true;
+      if (!TARGET_MEMBER.moderatable && !errorTimeOut) {
+        embed.setTitle("😥 ¡No puedo aislar temporalmente a este usuario!");
+        embed.setDescription("¿Por qué me lo pides si sabes que no puedo?... 😢");
+        errorTimeOut = true;
       }
 
-      if (!embed.data.title && !errorBan) {
+      if (!embed.data.title && !errorTimeOut) {
         const channelLogsModeration = interaction.guild.channels.cache.get(
-          process.env.CHANNEL_LOG_MODERATION
+          server.channel.logModeration
         );
 
         embed.setTitle(`⏳ [TIME OUT] ${TARGET_MEMBER.user.tag}`).addFields(
