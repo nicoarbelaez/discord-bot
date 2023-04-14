@@ -2,9 +2,8 @@ const { SlashCommandBuilder, PermissionFlagsBits, ChannelType } = require("disco
 
 module.exports = {
   CMD: new SlashCommandBuilder()
-    .setDescription(
-      'Envía un mensaje de blocky a un canal. Usa (emoji) en el segundo ":" para enviar emojis'
-    )
+    .setName("blocky-message")
+    .setDescription("Envía un mensaje de blocky a un canal.")
     .addChannelOption((option) =>
       option
         .setName("channel")
@@ -13,12 +12,12 @@ module.exports = {
         .setRequired(true)
     )
     .addStringOption((option) =>
-      option.setName("message-id").setDescription("ID del mensaje que se enviará").setRequired(true)
+      option.setName("message-id").setDescription("ID del mensaje a enviar").setRequired(true)
     )
     .addChannelOption((option) =>
       option
         .setName("channel-location")
-        .setDescription("Canal donde se encuentra el mensaje")
+        .setDescription("Canal donde está el mensaje")
         .addChannelTypes(ChannelType.GuildText)
     )
     .setDMPermission(false)
@@ -48,7 +47,7 @@ module.exports = {
       });
 
       await interaction.reply({
-        content: `Mensaje enviado al canal ${channel}`,
+        content: `Mensaje enviado en ${channel}`,
         ephemeral: true,
       });
     } catch (e) {

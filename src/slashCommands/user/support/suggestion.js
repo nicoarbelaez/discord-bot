@@ -98,30 +98,16 @@ module.exports = {
         }
       );
 
-      // // Envio de la sugerencia
-      // const message = await channelSuggestion.send({ embeds: [embed] });
-      // const urlSuggestions = `https://discord.com/channels/${interaction.guild.id}/${channelSuggestion.id}/${message.id}`;
-      // await message.edit({
-      //   embeds: [
-      //     embed.setDescription(
-      //       `${content} \n\nEnlace de la sugerencia: [Click aquí](${urlSuggestions})`
-      //     ),
-      //   ],
-      // });
-
-      // // Reacciones
-      // message.react(yes);
-      // message.react(indifferent);
-      // message.react(no);
-
       const button = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
           .setCustomId("comfirmSuggestion")
           .setStyle(ButtonStyle.Success)
-          .setLabel("Confirmar")
+          .setLabel("Confirmar"),
+
+        new ButtonBuilder().setCustomId("cancelSuggestion").setStyle(ButtonStyle.Secondary).setLabel("Cancelar")
       );
 
-      await interaction.reply({
+      const reply = await interaction.reply({
         components: [button],
         embeds: [
           new EmbedBuilder()
@@ -134,14 +120,15 @@ module.exports = {
         ephemeral: true,
       });
 
-      const collector = interaction.channel.createMessageComponentCollector();
+      const collector = reply.createMessageComponentCollector();
       collector.on("collect", async (i) => {
+        await i.deferUpdate();
         if (i.customId === "comfirmSuggestion") {
-          await i.deferUpdate();
 
           // Envio de la sugerencia
           const message = await channelSuggestion.send({ embeds: [embed] });
-          const urlSuggestions = `https://discord.com/channels/${interaction.guild.id}/${channelSuggestion.id}/${message.id}`;
+          // const urlSuggestions = `https://discord.com/channels/${interaction.guild.id}/${channelSuggestion.id}/${message.id}`;
+          const urlSuggestions = message.url;
           await message.edit({
             embeds: [
               embed.setDescription(
@@ -171,6 +158,19 @@ module.exports = {
                 .setTitle("📝 ¡Sugerencia enviada!")
                 .setDescription(
                   `Tu sugerencia ha sido enviada a ${channelSuggestion}.`
+                ),
+            ],
+          });
+        }else if (i.customId === "cancelSuggestion") {
+
+          await i.editReply({
+            components: [],
+            embeds: [
+              new EmbedBuilder()
+                .setColor(process.env.COLOR)
+                .setTitle("📝 ¡Sugerencia cancelada!")
+                .setDescription(
+                  `Tu sugerencia ha sido cancelada.`
                 ),
             ],
           });
