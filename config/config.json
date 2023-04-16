@@ -14,5 +14,67 @@
       "timeout": "#8999a7",
       "warn": "#E5D020"
     }
-  }
+  },
+  "prefixRoles": [
+    {
+      "name": "owner",
+      "id": "1091962815172067438",
+      "prefix": ""
+    },
+    {
+      "name": "developer",
+      "id": "1092847255469428868",
+      "prefix": "Dev"
+    },
+    {
+      "name": "admin",
+      "id": "828668093299556433",
+      "prefix": ""
+    },
+    {
+      "name": "moderator",
+      "id": "796918371874373652",
+      "prefix": "Mod"
+    },
+    {
+      "name": "helper",
+      "id": "796918485925756928",
+      "prefix": ""
+    },
+    {
+      "name": "partner",
+      "id": "816332651061313558",
+      "prefix": ""
+    },
+    {
+      "name": "nitro",
+      "id": "874851372145717288",
+      "prefix": "Nitro"
+    },
+    {
+      "name": "SloWorld++",
+      "id": "",
+      "prefix": ""
+    },
+    {
+      "name": "SloWorld+",
+      "id": "793299754246733864",
+      "prefix": ""
+    },
+    {
+      "name": "Master",
+      "id": "798181515363221515",
+      "prefix": ""
+    },
+    {
+      "name": "MVP",
+      "id": "793298262215753738",
+      "prefix": ""
+    },
+    {
+      "name": "Pro",
+      "id": "798181416286289992",
+      "prefix": ""
+    }
+  ]
 }

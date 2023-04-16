@@ -1,3 +1,5 @@
+const config = require(`${process.cwd()}/config/config.json`);
+
 module.exports = async (client, interaction) => { // Esto es para los slash commands
   if (!interaction.guild || !interaction.channel) return;
 
@@ -39,7 +41,7 @@ module.exports = async (client, interaction) => { // Esto es para los slash comm
     }
 
     try {
-      COMMAND.execute(client, interaction, "/");
+      COMMAND.execute(client, interaction, "/", config);
     } catch (e) {
       interaction.reply({
         content: `❌ | ${interaction.user}, **¡Ha ocurrido un error al ejecutar este comando!**`,

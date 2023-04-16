@@ -1,18 +1,19 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder, PermissionFlagsBits } = require("discord.js");
 
 module.exports = {
   CMD: new SlashCommandBuilder()
-    .setName("comandos")
-    .setDescription("Muestra los comandos disponibles para ti.")
+    .setName("help")
+    .setDescription("Muestra ayuda sobre los comandos del bot.")
     .setDMPermission(false),
 
   async execute(client, interaction, prefix) {
     try {
+      const ephemeralVisibility = interaction.member.permissions.has(PermissionFlagsBits.ModerateMembers);
       const permissionsMember = interaction.member.permissions.toArray();
+      const commandsClient = await client.application.commands.fetch();
       const commandList = [];
 
-      const commandsClient = await client.application.commands.fetch();
-
+      // Filtrar los comandos que el usuario puede ejecutar
       for (const command of commandsClient.values()) {
         const defaultPermissions = command.permissions.manager.defaultMemberPermissions;
 
@@ -64,7 +65,7 @@ module.exports = {
 
       return interaction.reply({
         embeds: [embed],
-        ephemeral: false,
+        ephemeral: ephemeralVisibility,
       });
     } catch (e) {
       console.log(e);

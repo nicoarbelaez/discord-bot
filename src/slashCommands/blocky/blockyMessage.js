@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits, ChannelType } = require("discord.js");
+const { SlashCommandBuilder, PermissionFlagsBits, ChannelType, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
 
 module.exports = {
   CMD: new SlashCommandBuilder()
@@ -41,13 +41,21 @@ module.exports = {
 
       const menssageContent = message.content.replaceAll("\\", "");
 
-      await channel.send({
+      const messageSend = await channel.send({
         content: menssageContent,
         files: message.attachments.map((attachment) => attachment.url),
       });
 
       await interaction.reply({
         content: `Mensaje enviado en ${channel}`,
+        components: [
+          new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+              .setStyle(ButtonStyle.Link)
+              .setLabel("Ver mensaje")
+              .setURL(messageSend.url)
+          ),
+        ],
         ephemeral: true,
       });
     } catch (e) {
